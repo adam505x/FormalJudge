@@ -84,8 +84,14 @@ class LLMCoTExecutor(BaseExecutor):
         """
         super().__init__(work_dir)
         self.model_name = model_name
-        self.api_base = api_base or os.environ.get("API_BASE_URL", "https://api3.xhub.chat/v1")
-        self.api_key = api_key or os.environ.get("XHUB_API_KEY")
+        self.api_base = api_base or os.environ.get("API_BASE_URL", "https://openrouter.ai/api/v1")
+        self.api_key = (
+            api_key
+            or os.environ.get("OPENROUTER_API_KEY")
+            or os.environ.get("OPENAI_API_KEY")
+            or os.environ.get("API_KEY")
+            or os.environ.get("XHUB_API_KEY")
+        )
         self.generation_config = generation_config or {"temperature": 0.0, "max_tokens": 4096}
         self.project_root = project_root or os.path.dirname(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

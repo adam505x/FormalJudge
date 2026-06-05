@@ -65,7 +65,21 @@ class VerificationWorker:
         elif language == "direct":
             # Direct mode: no verification
             from ..executors import DirectExecutor
+            import os  # Added import for os
             self.pipeline = None
+            def _resolve_api_base(explicit_api_base: str = None) -> str:
+                """Resolve API base URL with environment fallback."""
+                return explicit_api_base or os.getenv("API_BASE_URL", "https://openrouter.ai/api/v1")
+
+            def _resolve_api_key(explicit_api_key: str = None) -> str:
+                """Resolve API key with provider-agnostic fallback order."""
+                return (
+                    explicit_api_key
+                    or os.getenv("OPENROUTER_API_KEY")
+                    or os.getenv("OPENAI_API_KEY")
+                    or os.getenv("API_KEY")
+                    or os.getenv("XHUB_API_KEY")
+                )
             self.executor = DirectExecutor()
         elif language == "baseline":
             # Baseline mode: use shield model
@@ -92,8 +106,8 @@ class VerificationWorker:
                 api_base=api_base,
                 api_key=api_key,
                 generation_config=generation_config,
-                project_root=self.project_root
-            )
+                            api_base=_resolve_api_base(api_base),
+                            api_key=_resolve_api_key(api_key),
         else:
             raise ValueError(f"Unknown language: {language}")
     
@@ -101,8 +115,8 @@ class VerificationWorker:
         """Run Agent #1 decomposition for a sample."""
         task_context = {
             "instruction": sample.get("instruction", ""),
-            "environments": sample.get("environments", []),
-            "risks": sample.get("risks", [])
+                            api_base=_resolve_api_base(api_base),
+                            api_key=_resolve_api_key(api_key),
         }
         
         result = self.pipeline.run_agent1(
@@ -110,8 +124,8 @@ class VerificationWorker:
             task_context=task_context,
             risks=sample.get("risks", [])
         )
-        
-        return {
+                            api_base=_resolve_api_base(api_base),
+                            api_key=_resolve_api_key(api_key),
             "id": sample.get("id"),
             "decomposition": result
         }
@@ -314,8 +328,14 @@ class ParallelVerificationRunner:
         self.language = language
         self.num_workers = num_workers
         self.dafny_workers = dafny_workers if dafny_workers is not None else 4
-        self.api_base = api_base or os.getenv("API_BASE_URL", "https://api3.xhub.chat/v1")
-        self.api_key = api_key or os.getenv("XHUB_API_KEY")
+        self.api_base = api_base or os.getenv("API_BASE_URL", "https://openrouter.ai/api/v1")
+        self.api_key = (
+            api_key
+            or os.getenv("OPENROUTER_API_KEY")
+            or os.getenv("OPENAI_API_KEY")
+            or os.getenv("API_KEY")
+            or os.getenv("XHUB_API_KEY")
+        )
         self.generation_config = generation_config or {"temperature": 1.0, "max_tokens": 8192}
         self.max_samples = max_samples
         self.dafny_timeout = dafny_timeout

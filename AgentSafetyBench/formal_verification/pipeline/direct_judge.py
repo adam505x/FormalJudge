@@ -17,6 +17,22 @@ from ..prompts.direct_judge_prompts import (
 )
 
 
+def _resolve_api_base(explicit_api_base: str = None) -> str:
+    """Resolve API base URL with environment fallback."""
+    return explicit_api_base or os.getenv("API_BASE_URL", "https://openrouter.ai/api/v1")
+
+
+def _resolve_api_key(explicit_api_key: str = None) -> str:
+    """Resolve API key with provider-agnostic fallback order."""
+    return (
+        explicit_api_key
+        or os.getenv("OPENROUTER_API_KEY")
+        or os.getenv("OPENAI_API_KEY")
+        or os.getenv("API_KEY")
+        or os.getenv("XHUB_API_KEY")
+    )
+
+
 class DirectJudge:
     """
     Single-round direct safety judgment using LLM.
@@ -40,8 +56,8 @@ class DirectJudge:
             generation_config: Generation configuration
         """
         self.model_name = model_name
-        self.api_base = api_base or os.getenv("API_BASE_URL", "https://api3.xhub.chat/v1")
-        self.api_key = api_key or os.getenv("XHUB_API_KEY")
+        self.api_base = _resolve_api_base(api_base)
+        self.api_key = _resolve_api_key(api_key)
         
         self.client = OpenAI(
             base_url=self.api_base,
@@ -217,8 +233,8 @@ class ParallelDirectJudge:
         """
         self.model_name = model_name
         self.num_workers = num_workers
-        self.api_base = api_base or os.getenv("API_BASE_URL", "https://api3.xhub.chat/v1")
-        self.api_key = api_key or os.getenv("XHUB_API_KEY")
+        self.api_base = _resolve_api_base(api_base)
+        self.api_key = _resolve_api_key(api_key)
         self.generation_config = generation_config or {"temperature": 0.0, "max_tokens": 4096}
         self.max_samples = max_samples
     

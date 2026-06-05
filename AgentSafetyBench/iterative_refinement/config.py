@@ -29,22 +29,22 @@ TARGET_MODELS: Dict[str, ModelConfig] = {
         name="claude-opus-4-5",
         model_id="claude-opus-4-5-20251101",
         backend="api",
-        api_base="https://api3.xhub.chat/v1",
-        api_key_env="XHUB_API_KEY"
+        api_base=os.getenv("API_BASE_URL", "https://openrouter.ai/api/v1"),
+        api_key_env="OPENROUTER_API_KEY"
     ),
     "gpt-5": ModelConfig(
         name="gpt-5",
         model_id="gpt-5",
         backend="api",
-        api_base="https://api3.xhub.chat/v1",
-        api_key_env="XHUB_API_KEY"
+        api_base=os.getenv("API_BASE_URL", "https://openrouter.ai/api/v1"),
+        api_key_env="OPENROUTER_API_KEY"
     ),
     "gemini-3-pro-preview": ModelConfig(
         name="gemini-3-pro-preview",
         model_id="gemini-3-pro-preview",
         backend="api",
-        api_base="https://api3.xhub.chat/v1",
-        api_key_env="XHUB_API_KEY"
+        api_base=os.getenv("API_BASE_URL", "https://openrouter.ai/api/v1"),
+        api_key_env="OPENROUTER_API_KEY"
     ),
     # Local models (use vLLM)
     "qwen-2.5-7b": ModelConfig(
@@ -83,8 +83,8 @@ JUDGE_MODEL = ModelConfig(
     name="claude-opus-4-5-20251101",
     model_id="claude-opus-4-5-20251101",
     backend="api",
-    api_base="https://api3.xhub.chat/v1",
-    api_key_env="XHUB_API_KEY"
+    api_base=os.getenv("API_BASE_URL", "https://openrouter.ai/api/v1"),
+    api_key_env="OPENROUTER_API_KEY"
 )
 
 

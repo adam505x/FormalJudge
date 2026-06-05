@@ -4,6 +4,7 @@ import json
 import random
 import string
 import sys
+import os
 
 sys.path.append("./model_api")
 from BaseAPI import BaseAPI
@@ -15,7 +16,7 @@ class DeepseekAPI(BaseAPI):
         self.model_name = model_name
         self.client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
-            api_key="YOUR_KEY",
+            api_key=os.getenv("OPENROUTER_API_KEY"),
         )
         # self.sys_prompt = self.basic_sys_prompt
         self.sys_prompt = self.without_strict_jsonformat_sys_prompt

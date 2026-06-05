@@ -4,6 +4,7 @@ import json
 import random
 import string
 import sys
+import os
 from copy import deepcopy
 
 sys.path.append("./model_api")
@@ -16,7 +17,7 @@ class LlamaCloudAPI(BaseAPI):
         self.model_name = model_name
         self.client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
-            api_key="YOUR_KEY",
+            api_key=os.getenv("OPENROUTER_API_KEY"),
         )
         if 'temperature' not in self.generation_config:
             self.generation_config['temperature'] = 1.0

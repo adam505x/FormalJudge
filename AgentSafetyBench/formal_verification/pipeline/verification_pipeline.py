@@ -18,6 +18,22 @@ from ..prompts import (
 )
 
 
+def _resolve_api_base(explicit_api_base: str = None) -> str:
+    """Resolve API base URL with environment fallback."""
+    return explicit_api_base or os.getenv("API_BASE_URL", "https://openrouter.ai/api/v1")
+
+
+def _resolve_api_key(explicit_api_key: str = None) -> Optional[str]:
+    """Resolve API key with provider-agnostic fallback order."""
+    return (
+        explicit_api_key
+        or os.getenv("OPENROUTER_API_KEY")
+        or os.getenv("OPENAI_API_KEY")
+        or os.getenv("API_KEY")
+        or os.getenv("XHUB_API_KEY")
+    )
+
+
 class VerificationPipeline:
     """
     Orchestrates the 3-agent formal verification pipeline.
@@ -49,8 +65,8 @@ class VerificationPipeline:
         self.language = language
         
         # Set up API client
-        self.api_base = api_base or os.getenv("API_BASE_URL", "https://api3.xhub.chat/v1")
-        self.api_key = api_key or os.getenv("XHUB_API_KEY")
+        self.api_base = _resolve_api_base(api_base)
+        self.api_key = _resolve_api_key(api_key)
         
         self.client = OpenAI(
             base_url=self.api_base,
